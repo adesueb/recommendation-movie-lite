@@ -12,7 +12,7 @@ def convertToTimemillis(date):
     return 0
 
 DATA_DIR = "../data"
-recommandation_df = pd.read_csv('{}/data.csv'.format(DATA_DIR)).sort_values(by=['time'])
+recommandation_df = pd.read_csv('{}/data1.csv'.format(DATA_DIR)).sort_values(by=['time'])
 
 levels = []
 
