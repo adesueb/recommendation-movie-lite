@@ -16,7 +16,7 @@ recommandation_df = pd.read_csv('{}/data1.csv'.format(DATA_DIR)).sort_values(by=
 
 levels = []
 
-MIN_CONTENTS_ON_USER = 600 
+MIN_CONTENTS_ON_USER = 250 
 
 levels.append([0, MIN_CONTENTS_ON_USER+1])
 

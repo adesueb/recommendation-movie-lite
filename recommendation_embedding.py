@@ -12,9 +12,9 @@ import random
 import matplotlib.pyplot as plt
 
 
-MIN_CONTENTS_ON_USER = 600
+MIN_CONTENTS_ON_USER = 250
 MAX_DAYS = 7
-MAX_SEQUENCE = 4
+MAX_SEQUENCE = 6
 DATA_DIR = "data"
 recommandation_df = pd.read_csv('{}/normalizedata.csv'.format(DATA_DIR)).sort_values(by=['time'])
 
@@ -170,61 +170,58 @@ Y = np.array(labels).astype(np.float32)
 
 X = np.squeeze(X, axis=1)
 
-# dense_layers = [0, 1, 2, 3]
-# lstms  = [1, 2, 3, 4]
-# layer_sizes = [64, 128, 256,512]
+dense_layers = [0, 1, 2, 3]
+lstms  = [1, 2, 3, 4]
+layer_sizes = [64, 128, 256,512]
 
-# for dense_layer in dense_layers:
-#     for lstm in lstms:
-#         for layer_size in layer_sizes:
-#             name = "{}-nodes-{}-lstm-{}-dense-{}".format(layer_size, lstm, dense_layer, int(time.time()))
-#             tensorboard = TensorBoard(log_dir='logs/{}'.format(name))
-#             print(name)
+for dense_layer in dense_layers:
+    for lstm in lstms:
+        for layer_size in layer_sizes:
+            name = "{}-nodes-{}-lstm-{}-dense-{}".format(layer_size, lstm, dense_layer, int(time.time()))
+            tensorboard = TensorBoard(log_dir='logs/{}'.format(name))
+            print(name)
             
-#             model = Sequential()
-#             model.add(Embedding(lenSortedClassContents, layer_size, input_length=MAX_SEQUENCE))
+            model = Sequential()
+            model.add(Embedding(lenSortedClassContents, layer_size, input_length=MAX_SEQUENCE))
             
-#             for i in range(lstm):
-#                 print(i)
-#                 print(lstm)
-#                 print("----------------------------------")
-#                 if(i<(lstm-1)):
-#                     model.add(Bidirectional(LSTM(layer_size, return_sequences=True)))
-#                 else:
-#                     model.add(Bidirectional(LSTM(layer_size)))
+            for i in range(lstm):
+                if(i<(lstm-1)):
+                    model.add(Bidirectional(LSTM(layer_size, return_sequences=True)))
+                else:
+                    model.add(Bidirectional(LSTM(layer_size)))
             
-#             for i in range(dense_layer):
-#                 model.add(Dense(layer_size))
-#                 model.add(Activation('relu'))
+            for i in range(dense_layer):
+                model.add(Dense(layer_size))
+                model.add(Activation('relu'))
 
-#             model.add(Dense(lenSortedClassContents, activation='softmax'))
-#             adam = Adam(lr=0.01)
-#             model.compile(loss='sparse_categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-#             history = model.fit(X, Y, epochs=100, verbose=1, callbacks=[tensorboard])
+            model.add(Dense(lenSortedClassContents, activation='softmax'))
+            adam = Adam(lr=0.01)
+            model.compile(loss='sparse_categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+            history = model.fit(X, Y, epochs=48, batch_size=32, verbose=1, validation_split=0.05, callbacks=[tensorboard])
 
-name = "testing-1"
-tensorboard = TensorBoard(log_dir='logs/{}'.format(name))
-model = Sequential()
-model.add(Embedding(lenSortedClassContents, 128, input_length=MAX_SEQUENCE))
-model.add(Bidirectional(LSTM(128, return_sequences=True)))
-model.add(Bidirectional(LSTM(128, return_sequences=True)))
-model.add(Bidirectional(LSTM(128, return_sequences=True)))
-model.add(Bidirectional(LSTM(128)))
-model.add(Dense(lenSortedClassContents, activation='softmax'))
-adam = Adam(lr=0.01)
-model.compile(loss='sparse_categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-history = model.fit(X, Y, epochs=45, verbose=1, callbacks=[tensorboard])
+# name = "testing-1"
+# tensorboard = TensorBoard(log_dir='logs/{}'.format(name))
+# model = Sequential()
+# model.add(Embedding(lenSortedClassContents, 128, input_length=MAX_SEQUENCE))
+# model.add(Bidirectional(LSTM(128, return_sequences=True)))
+# model.add(Bidirectional(LSTM(128, return_sequences=True)))
+# model.add(Bidirectional(LSTM(128, return_sequences=True)))
+# model.add(Bidirectional(LSTM(128)))
+# model.add(Dense(lenSortedClassContents, activation='softmax'))
+# adam = Adam(lr=0.01)
+# model.compile(loss='sparse_categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+# history = model.fit(X, Y, epochs=45, verbose=1, callbacks=[tensorboard])
 
-predict = model.predict([[0,0, 0,sortedClassContents.index(1506)]])
-print(predict)
-print(np.argmax(predict[0]))
-sortedClassContents[np.argmax(predict[0])]
+# predict = model.predict([[0,0, 0,sortedClassContents.index(1506)]])
+# print(predict)
+# print(np.argmax(predict[0]))
+# sortedClassContents[np.argmax(predict[0])]
 
 
-run_model = tf.function(lambda x: model(x))
-concrete_func = run_model.get_concrete_function(tf.TensorSpec([1,4], model.inputs[0].dtype))
-MODEL_DIR = "model"
-model.save(MODEL_DIR, save_format="tf", signatures=concrete_func)
-converter = tf.lite.TFLiteConverter.from_saved_model(MODEL_DIR)
-tflite_model = converter.convert()
-open("converted_model.tflite", "wb").write(tflite_model)
+# run_model = tf.function(lambda x: model(x))
+# concrete_func = run_model.get_concrete_function(tf.TensorSpec([1,4], model.inputs[0].dtype))
+# MODEL_DIR = "model"
+# model.save(MODEL_DIR, save_format="tf", signatures=concrete_func)
+# converter = tf.lite.TFLiteConverter.from_saved_model(MODEL_DIR)
+# tflite_model = converter.convert()
+# open("converted_model.tflite", "wb").write(tflite_model)
