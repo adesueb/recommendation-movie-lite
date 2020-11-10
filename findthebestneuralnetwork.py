@@ -1,6 +1,5 @@
 import time
 
-
 dense_layers = [0, 1, 2, 3]
 lstms  = [1, 2, 3, 4]
 layer_sizes = [64, 128, 256,512]
