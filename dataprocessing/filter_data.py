@@ -1,24 +1,25 @@
-import numpy as np
-import pandas as pd
 import datetime
-import random
+
+import pandas as pd
+
 
 def convertToTimemillis(date):
     try:
         d = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M:%S").strftime('%s.%f')
-        return int(float(d)*1000)
+        return int(float(d) * 1000)
     except:
         pass
     return 0
+
 
 DATA_DIR = "../data"
 recommandation_df = pd.read_csv('{}/data1.csv'.format(DATA_DIR)).sort_values(by=['time'])
 
 levels = []
 
-MIN_CONTENTS_ON_USER = 250 
+MIN_CONTENTS_ON_USER = 250
 
-levels.append([0, MIN_CONTENTS_ON_USER+1])
+levels.append([0, MIN_CONTENTS_ON_USER + 1])
 
 contentLevels = recommandation_df['Content'].values
 for contentLevel in contentLevels:
@@ -27,10 +28,10 @@ for contentLevel in contentLevels:
     for key, level in levels:
         if contentLevel == key:
             add = False
-            levels[indexLevel] = ([key, level+1])
+            levels[indexLevel] = ([key, level + 1])
             break
         else:
-            indexLevel+=1
+            indexLevel += 1
     if add:
         levels.append([contentLevel, 1])
 
@@ -38,10 +39,8 @@ classContents = []
 for key, level in levels:
     if level > MIN_CONTENTS_ON_USER:
         classContents.append(key)
-        
+
 sortedClassContents = sorted(classContents)
-
-
 
 content = recommandation_df['Content']
 i = 0

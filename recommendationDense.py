@@ -12,7 +12,7 @@ from recom_model import trainWithBidirectional
 
 MIN_CONTENTS_ON_USER = 250
 MAX_DAYS = 7
-MAX_SEQUENCE = 6
+MAX_SEQUENCE = 1
 DATA_DIR = "data"
 
 recommandation_df = pd.read_csv('{}/normalizedata.csv'.format(DATA_DIR)).sort_values(by=['time'])
@@ -51,7 +51,7 @@ for index, item in visitors_df.iteritems():
             tempContents.append(item)
             indexContent += 1
 
-training_data = find_top_dataset(training_data)
+# training_data = find_top_dataset(training_data)
 print("training size: ", len(training_data))
 random.shuffle(training_data)
 
