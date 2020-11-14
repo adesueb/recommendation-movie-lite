@@ -1,8 +1,8 @@
-/logs/
-/logs_val/
-/logs/testing-1/
-/.idea/
-!/logs/*.*
-!/logs_val/*.*
-!/logs/testing-1/*.*
-!/.idea/*.*
+/logs
+/logs_val
+/logs/testing-1
+/.idea
+logs/**
+logs_val/*
+logs/testing-1/**
+.idea/**
