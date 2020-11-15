@@ -1,28 +1,41 @@
 import time
 
-dense_layers = [0, 1, 2, 3]
-lstms = [1, 2, 3, 4]
-layer_sizes = [64, 128, 256, 512]
+import tensorflow as tf
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.layers import Dense, Activation
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
 
-for dense_layer in dense_layers:
-    for lstm in lstms:
-        for layer_size in layer_sizes:
-            name = "{}-nodes-{}-lstm-{}-dense-{}".format(layer_size, lstm, dense_layer, int(time.time()))
-            print(name)
 
-            # tensorboard = TensorBoard(log_dir='logs/{}'.format(name))
+def run_hyper_parameter(X, Y, X_val, Y_val, lenSortedClassContents):
+    dense_layers = [0, 1, 2, 3, 4]
+    layer_sizes = [64, 128, 256, 512]
+    optimizers = [0, 1, 2]
 
-            # model = Sequential()
-            # model.add(Embedding(lenSortedClassContents, layer_size, input_length=MAX_SEQUENCE))
+    for dense_layer in dense_layers:
+        for optimizer in optimizers:
+            for layer_size in layer_sizes:
+                name = "{}-nodes-{}-optimizer-{}-dense-{}".format(layer_size, optimizer, dense_layer, int(time.time()))
+                print(name)
 
-            # for i in range(lstm):
-            #     model.add(Bidirectional(LSTM(layer_size)))
+                tensorboard = TensorBoard(log_dir='logs/{}'.format(name))
 
-            # for i in range(dense_layer):
-            #     model.add(Dense(layer_size))
-            #     model.add(Activation('relu'))
+                model = Sequential()
 
-            # model.add(Dense(lenSortedClassContents, activation='softmax'))
-            # adam = Adam(lr=0.01)
-            # model.compile(loss='sparse_categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-            # history = model.fit(X, Y, epochs=100, verbose=1, callbacks=[tensorboard])
+                model.add(Dense(layer_size, activation="relu", input_shape=X.shape[1:]))
+
+                for i in range(dense_layer):
+                    model.add(Dense(layer_size))
+                    model.add(Activation('relu'))
+
+                model.add(Dense(lenSortedClassContents, activation='softmax'))
+
+                if optimizer == 0:
+                    opt = Adam(lr=0.01)
+                elif optimizer == 1:
+                    opt = tf.keras.optimizers.Adam(lr=0.001, decay=1e-6)
+                else:
+                    opt = 'adam'
+                model.compile(loss='sparse_categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+                model.fit(X, Y, epochs=250, batch_size=64, verbose=1, validation_data=(X_val, Y_val),
+                          callbacks=[tensorboard])
