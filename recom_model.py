@@ -22,7 +22,7 @@ def trainWithEmbeddingDense(inputMaxLength, classLen):
 
 def trainWithDense(xShape, classLen):
     # X = np.squeeze(X, axis=1)
-    # (8940, 6)
+    # (8940, 1)
     model = Sequential()
     model.add(Dense(512, activation="relu", input_shape=xShape))
     model.add(Dense(512, activation="relu"))
@@ -30,8 +30,7 @@ def trainWithDense(xShape, classLen):
     model.add(Dense(512, activation="relu"))
     model.add(Dense(classLen))
     model.add(Activation("softmax"))
-    opt = tf.keras.optimizers.Adam(lr=0.001, decay=1e-6)
-    model.compile(loss='sparse_categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
+    model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 def trainWithCNN(xShape, classLen):
     model = Sequential()
