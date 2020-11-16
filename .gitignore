@@ -7,3 +7,10 @@ logs_val/*
 logs/testing-1/**
 .idea/**
 /.ipynb_checkpoints/recommandation_dense-checkpoint.ipynb
+tf_model/**
+/tf_model/
+/tf_model_600/
+/tf_model_lstm_embedding/
+/model_lstm_embedding/
+/model_bidirectional_embedding/
+/model_600/
