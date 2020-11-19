@@ -5,9 +5,9 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.callbacks import TensorBoard
 
+from dataprocessing.builder import build_training_data
 from dataprocessing.find_top_movie_with_sequence import find_top_dataset
-from dataprocessing.label_and_feature import getSortedClassContents, checkConsists, buildFeature, saveClassesToFile
-from dataprocessing.time import checkingTimeDifferent
+from dataprocessing.label_and_feature import getSortedClassContents, saveClassesToFile
 from recom_model import trainWithBidirectional
 
 MIN_CONTENTS_ON_USER = 250
@@ -22,34 +22,7 @@ saveClassesToFile(sortedClassContents)
 lenSortedClassContents = len(sortedClassContents)
 print(lenSortedClassContents)
 
-visitors_df = recommandation_df['visitor'].drop_duplicates()
-maxItem = recommandation_df['Content'].max()
-training_data = []
-for index, item in visitors_df.iteritems():
-    video = recommandation_df[recommandation_df['visitor'] == item]
-    if video.size > 1:
-        tempContents = []
-        indexContent = 0
-        for index, item in video['Content'].iteritems():
-            if item not in sortedClassContents:
-                continue
-            if len(tempContents) > MAX_SEQUENCE:
-                tempContents = tempContents[1:]
-                continue
-            if checkConsists(item, tempContents):
-                continue
-            if len(tempContents) > 0:
-                nowDate = video['time'].iloc[indexContent]
-                beforeDate = video['time'].iloc[indexContent - 1]
-
-                if checkingTimeDifferent(nowDate, beforeDate, MAX_DAYS):
-                    tempContents = []
-                else:
-                    feature = buildFeature(tempContents, sortedClassContents, MAX_SEQUENCE)
-                    label = sortedClassContents.index(item)
-                    training_data.append([[feature], label])
-            tempContents.append(item)
-            indexContent += 1
+training_data = build_training_data(recommandation_df, sortedClassContents, MAX_SEQUENCE)
 
 training_data = find_top_dataset(training_data)
 print("training size: ", len(training_data))
