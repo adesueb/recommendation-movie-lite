@@ -6,7 +6,7 @@ logs/**
 logs_val/*
 logs/testing-1/**
 .idea/**
-/.ipynb_checkpoints/recommandation_dense-checkpoint.ipynb
+/.ipynb_checkpoints
 tf_model/**
 /tf_model/
 /tf_model_600/
