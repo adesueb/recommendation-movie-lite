@@ -14,3 +14,4 @@ tf_model/**
 /model_lstm_embedding/
 /model_bidirectional_embedding/
 /model_600/
+/model
