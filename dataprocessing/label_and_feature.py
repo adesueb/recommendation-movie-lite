@@ -47,6 +47,6 @@ def buildFeature(paramsContents, sortedClassContents, max_video_per_data):
 
 
 def saveClassesToFile(classes):
-    label_file = open("data/label.txt", "w")
+    label_file = open("data/classes.txt", "w")
     np.savetxt(label_file, classes)
     label_file.close()
