@@ -1,35 +1,42 @@
+import os
 import random
 from datetime import datetime
 
 import numpy as np
-import pandas as pd
 import tensorflow as tf
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.python.keras.callbacks import TensorBoard
 
-from dataprocessing.builder import build_training_data
 from dataprocessing.find_top_movie_with_sequence import find_top_dataset
-from dataprocessing.label_and_feature import getSortedClassContents, saveClassesToFile
 from recom_model import trainWithDense
 
-MIN_CONTENTS_ON_USER = 250
-MAX_DAYS = 7
-MAX_SEQUENCE = 1
-DATA_DIR = "data"
+# using cpu -> os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-recommandation_df = pd.read_csv('{}/normalizedata.csv'.format(DATA_DIR)).sort_values(by=['time'])
+def prepare_data():
+    DATA_DIR = "backup"
+    features = np.loadtxt("{}/backup_features_small.txt".format(DATA_DIR))
+    labels = np.loadtxt("{}/backup_labels_small.txt".format(DATA_DIR))
+    classes = np.loadtxt("{}/classes_small.txt".format(DATA_DIR))
+    print("training data : {}".format(len(features)))
 
-sortedClassContents = getSortedClassContents(recommandation_df, MIN_CONTENTS_ON_USER)
-saveClassesToFile(sortedClassContents)
-lenSortedClassContents = len(sortedClassContents)
-print(lenSortedClassContents)
+    training_data = []
+    for i in range(len(labels)):
+        training_data.append([[features[i]], labels[i]])
+        training_data.append([[labels[i]], features[i]])
+    print(training_data)
+    print("training size : {}".format(len(training_data)))
+    return training_data, classes
 
-training_data = build_training_data(recommandation_df, sortedClassContents, MAX_SEQUENCE)
 
+data = prepare_data()
+classes = data[1]
+lenSortedClassContents = len(classes)
+print("classes : {}".format(lenSortedClassContents))
+
+training_data = data[0]
 validation_data = find_top_dataset(training_data)
-print("training size: ", len(training_data))
-print("validation size: ", len(validation_data))
-random.shuffle(training_data)
+print("validation data : {}".format(len(validation_data)))
 
+random.shuffle(training_data)
 features = []
 labels = []
 for feature, label in training_data:
@@ -37,7 +44,7 @@ for feature, label in training_data:
     labels.append(label)
 
 X = np.array(features)
-Y = np.array(labels).astype(np.float32)
+Y = np.array(labels)
 print(X.shape)
 
 features_val = []
@@ -48,19 +55,29 @@ for feature, label in validation_data:
 
 X_val = np.array(features_val)
 Y_val = np.array(labels_val).astype(np.float32)
-
-X = np.squeeze(X, axis=1)
-model = trainWithDense(MAX_SEQUENCE, lenSortedClassContents)
+model = trainWithDense(X.shape[1:], lenSortedClassContents)
 
 now = datetime.now()
 name = "testing-1-{}".format(now)
 tensorboard = TensorBoard(log_dir='logs/{}'.format(name))
-history = model.fit(X, Y, epochs=45, verbose=1, validation_data=(X_val, Y_val), callbacks=[tensorboard])
+model.fit(X, Y, epochs=256, batch_size=64, verbose=1, validation_data=(X_val, Y_val), callbacks=[tensorboard])
 
-predict = model.predict([[0, 0, 0, sortedClassContents.index(1506)]])
-print(predict)
-print(np.argmax(predict[0]))
-print(sortedClassContents[np.argmax(predict[0])])
+classes = list(classes)
+
+
+def get5TopPredict(predict):
+    predicts = predict[0].argsort()[-5:][::-1]
+    for i in predicts:
+        print(classes[i])
+
+
+def predictDense(first):
+    predict = model.predict([[classes.index(first)]])
+    get5TopPredict(predict)
+    return classes[np.argmax(predict[0])]
+
+
+predictResult = predictDense(700)
 
 # saving model
 MODEL_DIR = "model"

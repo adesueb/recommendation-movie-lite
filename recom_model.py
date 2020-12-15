@@ -21,16 +21,16 @@ def trainWithEmbeddingDense(inputMaxLength, classLen):
     return model
 
 def trainWithDense(xShape, classLen):
-    # X = np.squeeze(X, axis=1)
-    # (8940, 1)
     model = Sequential()
     model.add(Dense(512, activation="relu", input_shape=xShape))
+    model.add(Dense(512, activation="relu"))
     model.add(Dense(512, activation="relu"))
     model.add(Dense(512, activation="relu"))
     model.add(Dense(512, activation="relu"))
     model.add(Dense(classLen))
     model.add(Activation("softmax"))
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return model
 
 def trainWithCNN(xShape, classLen):
     model = Sequential()
